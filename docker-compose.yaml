@@ -1,0 +1,57 @@
+# docker-compose.yaml
+
+services:
+  v53:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "48080:8080"
+    volumes:
+      - ./app/v53:/bitnami/moodle
+    environment:
+      MOODLE_DATABASE_TYPE: pgsql
+      MOODLE_DATABASE_HOST: db
+      MOODLE_DATABASE_PORT_NUMBER: 5432
+      MOODLE_DATABASE_NAME: ${DB_NAME}
+      MOODLE_DATABASE_USER: ${DB_USERNAME}
+      MOODLE_DATABASE_PASSWORD: ${DB_PASSWORD}
+      MOODLE_USERNAME: ${USERNAME}
+      MOODLE_PASSWORD: ${PASSWORD}
+      MOODLE_EMAIL: ${EMAIL}
+      MOODLE_SITE_NAME: ${SITE_NAME}
+      BITNAMI_DEBUG: ${DEBUG}
+
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_USER: ""
+      SMTP_PASSWORD: ""
+      SMTP_PROTOCOL: ""
+    depends_on:
+      - db
+      - mailpit
+    restart: unless-stopped
+
+  db:
+    platform: linux/amd64
+    image: postgres:latest
+    env_file:
+      - .env
+    ports:
+      - "55432:5432"
+    environment:
+      POSTGRES_DB: db_moodle_v53
+      POSTGRES_USER: dba
+      POSTGRES_PASSWORD: dB@p@$$w0rd
+    restart: unless-stopped
+
+  mailpit:
+    platform: linux/amd64
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    restart: unless-stopped
