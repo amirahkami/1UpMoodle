@@ -43,9 +43,9 @@ services:
     ports:
       - "55432:5432"
     environment:
-      POSTGRES_DB: db_moodle_v53
-      POSTGRES_USER: dba
-      POSTGRES_PASSWORD: dB@p@$$w0rd
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     restart: unless-stopped
 
   mailpit:

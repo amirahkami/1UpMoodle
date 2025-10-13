@@ -1,6 +1,7 @@
 # Dockerfile
 
-FROM bitnami/moodle:latest
+# FROM bitnami/moodle:latest not working anymore
+FROM bitnamilegacy/moodle:latest
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends curl ca-certificates gnupg \
