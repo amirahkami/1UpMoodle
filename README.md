@@ -61,9 +61,10 @@ For browser redirects, make sure the host machine resolves `keycloak.test`:
 
 The Moodle container already maps `keycloak.test` to the Docker host through `extra_hosts`, so Moodle can call Keycloak from inside Docker.
 
-Configure Moodle's OAuth 2 issuer:
+Install local plugins and configure Moodle's OAuth 2 issuer:
 
 ```
+docker compose exec v53 php /bitnami/moodle/admin/cli/upgrade.php --non-interactive
 docker compose exec v53 php /opt/1upmoodle/scripts/configure-keycloak-oauth.php
 ```
 
@@ -80,10 +81,23 @@ First name claim: given_name
 Last name claim: family_name
 ```
 
+The stack also mounts `plugins/local/keycloakrolesync` into Moodle. On every OAuth login it reads
+Keycloak's `moodle_roles` claim and syncs these global Moodle permissions:
+
+```text
+moodle_roles: admin          -> Moodle site admin
+moodle_roles: manager        -> Moodle system manager
+moodle_roles: course_creator -> Moodle system course creator
+moodle_roles: student        -> normal authenticated user
+moodle_roles: guest          -> no extra global role
+moodle_roles: teacher        -> skipped until course enrolments are defined
+```
+
 Seeded Keycloak test user:
 
 ```text
 maya.chen / MayaChen@unreal
+anna.meyer / AnnaMeyer@unreal
 ```
 
 ## Running Grunt

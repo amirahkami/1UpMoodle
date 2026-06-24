@@ -15,6 +15,7 @@ services:
     volumes:
       - ./app/v53:/bitnami/moodle
       - moodle_data:/bitnami/moodledata
+      - ./plugins/local/keycloakrolesync:/bitnami/moodle/local/keycloakrolesync:ro
       - ./scripts:/opt/1upmoodle/scripts:ro
     environment:
       MOODLE_DATABASE_TYPE: pgsql
