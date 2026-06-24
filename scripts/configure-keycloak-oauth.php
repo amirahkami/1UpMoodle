@@ -87,6 +87,19 @@ if (!in_array('oauth2', $enabledauth, true)) {
     set_config('auth', implode(',', $enabledauth));
 }
 
+// Local Keycloak runs on the Docker host gateway at keycloak.test:58080.
+// Moodle's default cURL security policy blocks that private-network target.
+set_config('curlsecurityallowedport', implode("\n", ['443', '80', '58080']));
+set_config('curlsecurityblockedhosts', implode("\n", [
+    '127.0.0.0/8',
+    '10.0.0.0/8',
+    '172.16.0.0/12',
+    '0.0.0.0',
+    'localhost',
+    '169.254.169.254',
+    '0000::1',
+]));
+
 purge_all_caches();
 
 if (function_exists('posix_geteuid') && posix_geteuid() === 0) {
