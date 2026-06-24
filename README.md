@@ -36,6 +36,7 @@ Moodle is available at [http://localhost:48080/](http://localhost:48080/).
 ## Keycloak Development Login
 
 This stack is prepared to connect to the sibling `1UpKeyCloak` development realm.
+For the cross-repo overview, see `1UpKeyCloak/docs/local-apps.md`.
 
 Start Keycloak first from the `1UpKeyCloak` repository:
 
