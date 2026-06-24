@@ -10,8 +10,12 @@ services:
       - .env
     ports:
       - "48080:8080"
+    extra_hosts:
+      - "${KEYCLOAK_HOSTNAME:-keycloak.test}:host-gateway"
     volumes:
       - ./app/v53:/bitnami/moodle
+      - moodle_data:/bitnami/moodledata
+      - ./scripts:/opt/1upmoodle/scripts:ro
     environment:
       MOODLE_DATABASE_TYPE: pgsql
       MOODLE_DATABASE_HOST: db
@@ -23,6 +27,7 @@ services:
       MOODLE_PASSWORD: ${PASSWORD}
       MOODLE_EMAIL: ${EMAIL}
       MOODLE_SITE_NAME: ${SITE_NAME}
+      MOODLE_HOST: ${MOODLE_HOST}
       BITNAMI_DEBUG: ${DEBUG}
 
       SMTP_HOST: mailpit
@@ -30,6 +35,10 @@ services:
       SMTP_USER: ""
       SMTP_PASSWORD: ""
       SMTP_PROTOCOL: ""
+
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
     depends_on:
       - db
       - mailpit
@@ -37,7 +46,7 @@ services:
 
   db:
     platform: linux/amd64
-    image: postgres:latest
+    image: postgres:15
     env_file:
       - .env
     ports:
@@ -46,6 +55,8 @@ services:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - moodle_db_data:/var/lib/postgresql/data
     restart: unless-stopped
 
   mailpit:
@@ -55,3 +66,7 @@ services:
       - "8025:8025"
       - "1025:1025"
     restart: unless-stopped
+
+volumes:
+  moodle_data:
+  moodle_db_data:

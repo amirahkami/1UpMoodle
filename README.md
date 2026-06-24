@@ -9,6 +9,11 @@ This Docker setup provides a local development environment for Moodle.
 ## Quick Start
 
 1. Copy and adjust credentials in your `.env` file.
+
+```
+cp .env.example .env
+```
+
 2. Build and start the containers:
 
 ```
@@ -25,6 +30,61 @@ npm install
 ```
 
 You can now proceed to use moodle and install plugins
+
+Moodle is available at [http://localhost:48080/](http://localhost:48080/).
+
+## Keycloak Development Login
+
+This stack is prepared to connect to the sibling `1UpKeyCloak` development realm.
+
+Start Keycloak first from the `1UpKeyCloak` repository:
+
+```
+cp .env.example .env
+docker compose up -d
+```
+
+The expected Keycloak realm and Moodle OIDC client are:
+
+```text
+Issuer: http://keycloak.test:58080/realms/university-dev
+Client ID: moodle
+Client secret: moodle-dev-secret
+Redirect base: http://localhost:48080
+```
+
+For browser redirects, make sure the host machine resolves `keycloak.test`:
+
+```
+127.0.0.1 keycloak.test
+```
+
+The Moodle container already maps `keycloak.test` to the Docker host through `extra_hosts`, so Moodle can call Keycloak from inside Docker.
+
+Configure Moodle's OAuth 2 issuer:
+
+```
+docker compose exec v53 php /opt/1upmoodle/scripts/configure-keycloak-oauth.php
+```
+
+The script enables Moodle's core OAuth 2 authentication plugin and creates a custom OAuth 2 service with these endpoints:
+
+```text
+Authorization endpoint: http://keycloak.test:58080/realms/university-dev/protocol/openid-connect/auth
+Token endpoint: http://keycloak.test:58080/realms/university-dev/protocol/openid-connect/token
+Userinfo endpoint: http://keycloak.test:58080/realms/university-dev/protocol/openid-connect/userinfo
+Scopes: openid profile email roles
+Username claim: preferred_username
+Email claim: email
+First name claim: given_name
+Last name claim: family_name
+```
+
+Seeded Keycloak test user:
+
+```text
+maya.chen / MayaChen@unreal
+```
 
 ## Running Grunt
 
