@@ -6,7 +6,7 @@ require_once($CFG->libdir . '/clilib.php');
 
 global $DB, $CFG;
 
-$issuerbase = getenv('KEYCLOAK_ISSUER') ?: 'http://keycloak.test:58080/realms/university-dev';
+$issuerbase = getenv('KEYCLOAK_ISSUER') ?: 'http://1up-keycloak.localhost:28080/realms/university-dev';
 $clientid = getenv('KEYCLOAK_CLIENT_ID') ?: 'moodle';
 $clientsecret = getenv('KEYCLOAK_CLIENT_SECRET') ?: 'moodle-dev-secret';
 $now = time();
@@ -87,9 +87,16 @@ if (!in_array('oauth2', $enabledauth, true)) {
     set_config('auth', implode(',', $enabledauth));
 }
 
-// Local Keycloak runs on the Docker host gateway at keycloak.test:58080.
-// Moodle's default cURL security policy blocks that private-network target.
-set_config('curlsecurityallowedport', implode("\n", ['443', '80', '58080']));
+// Local Keycloak and Middleware run on the Docker host gateway. Moodle's
+// default cURL security policy blocks those private-network targets.
+$issuerport = (int)(parse_url($issuerbase, PHP_URL_PORT) ?: 443);
+$middlewareport = (int)(getenv('MIDDLEWARE_API_PORT') ?: 38000);
+set_config('curlsecurityallowedport', implode("\n", array_unique([
+    '443',
+    '80',
+    (string)$issuerport,
+    (string)$middlewareport,
+])));
 set_config('curlsecurityblockedhosts', implode("\n", [
     '127.0.0.0/8',
     '10.0.0.0/8',

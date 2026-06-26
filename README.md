@@ -31,7 +31,13 @@ npm install
 
 You can now proceed to use moodle and install plugins
 
-Moodle is available at [http://localhost:48080/](http://localhost:48080/).
+Moodle is available at [http://localhost:28082/](http://localhost:28082/).
+
+For a new local database, install Moodle before opening the site:
+
+```bash
+./scripts/install-fresh.sh
+```
 
 ## Keycloak Development Login
 
@@ -48,33 +54,29 @@ docker compose up -d
 The expected Keycloak realm and Moodle OIDC client are:
 
 ```text
-Issuer: http://keycloak.test:58080/realms/university-dev
+Issuer: http://1up-keycloak.localhost:28080/realms/university-dev
 Client ID: moodle
 Client secret: moodle-dev-secret
-Redirect base: http://localhost:48080
+Redirect base: http://localhost:28082
 ```
 
-For browser redirects, make sure the host machine resolves `keycloak.test`:
-
-```
-127.0.0.1 keycloak.test
-```
-
-The Moodle container already maps `keycloak.test` to the Docker host through `extra_hosts`, so Moodle can call Keycloak from inside Docker.
+`1up-keycloak.localhost` resolves to the local machine in browsers. The Moodle
+container maps it to the Docker host through `extra_hosts`.
 
 Install local plugins and configure Moodle's OAuth 2 issuer:
 
 ```
 docker compose exec v53 php /bitnami/moodle/admin/cli/upgrade.php --non-interactive
 docker compose exec v53 php /opt/1upmoodle/scripts/configure-keycloak-oauth.php
+docker compose exec v53 php /opt/1upmoodle/scripts/configure-jupyterhubnrw.php
 ```
 
 The script enables Moodle's core OAuth 2 authentication plugin and creates a custom OAuth 2 service with these endpoints:
 
 ```text
-Authorization endpoint: http://keycloak.test:58080/realms/university-dev/protocol/openid-connect/auth
-Token endpoint: http://keycloak.test:58080/realms/university-dev/protocol/openid-connect/token
-Userinfo endpoint: http://keycloak.test:58080/realms/university-dev/protocol/openid-connect/userinfo
+Authorization endpoint: http://1up-keycloak.localhost:28080/realms/university-dev/protocol/openid-connect/auth
+Token endpoint: http://1up-keycloak.localhost:28080/realms/university-dev/protocol/openid-connect/token
+Userinfo endpoint: http://1up-keycloak.localhost:28080/realms/university-dev/protocol/openid-connect/userinfo
 Scopes: openid profile email roles
 Username claim: preferred_username
 Email claim: email
@@ -123,7 +125,7 @@ grunt
 
 All outgoing mail is routed to the SMTP server. By default, **Mailpit** captures messages for viewing in its UI and does not deliver them to the internet.
 
-* Mailpit UI: [http://localhost:8025/](http://localhost:8025/)
+* Mailpit UI: [http://localhost:28026/](http://localhost:28026/)
 
 ## Enable Debugging
 
